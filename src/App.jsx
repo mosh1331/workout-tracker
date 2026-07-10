@@ -102,19 +102,25 @@ export default function App() {
     alert(`Plan successfully bound to ${schedulerForm.date}`);
   };
 
-  const startWorkoutSession = (plan) => {
-    const defaultProgress = {};
-    plan.exercises.forEach(config => {
-      defaultProgress[config.exerciseId] = Array.from({ length: config.targetSets }, () => ({
-        weight: 40,
-        reps: config.targetReps,
-        duration: config.targetDuration
-      }));
-    });
-    setWorkoutProgress(defaultProgress);
-    setActiveExerciseIndex(0);
-    setIsWorkoutActive(true);
-  };
+ const startWorkoutSession = (plan) => {
+  const defaultProgress = {};
+  
+  // FIX: Changed 'plan?.exercises' to 'plan?.selectedExs' to match your schema
+  plan?.selectedExs?.forEach(config => {
+    // Defensive check: Ensure targetSets is a valid number (fallback to 3 if missing)
+    const totalSets = parseInt(config.targetSets) || 3;
+
+    defaultProgress[config.exerciseId] = Array.from({ length: totalSets }, () => ({
+      weight: 0, // Set to 0 so inputs start clean, or keep 40 if you want a default baseline
+      reps: parseInt(config.targetReps) || 0,
+      duration: parseInt(config.targetDuration) || 0
+    }));
+  });
+
+  setWorkoutProgress(defaultProgress);
+  setActiveExerciseIndex(0);
+  setIsWorkoutActive(true);
+};
 
   const activePlanId = schedule[selectedDate];
   const todayPlan = plans.find(p => p.id === activePlanId);
