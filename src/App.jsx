@@ -10,13 +10,13 @@ localforage.config({ name: "FitTrackPWA", storeName: "workout_data" });
 export default function App() {
   // Global Navigation State
   const [currentTab, setCurrentTab] = useState('diary'); // 'diary' | 'plans' | 'exercises'
-  
+
   // Data State
   const [exercises, setExercises] = useState([]);
   const [plans, setPlans] = useState([]);
   const [schedule, setSchedule] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  
+
   // Active Workout Tracking States
   const [isWorkoutActive, setIsWorkoutActive] = useState(false);
   const [workoutMode, setWorkoutMode] = useState('card'); // 'card' | 'list'
@@ -30,32 +30,64 @@ export default function App() {
   const [newPlan, setNewPlan] = useState({ name: '', selectedExs: [] });
   const [schedulerForm, setSchedulerForm] = useState({ date: new Date().toISOString().split('T')[0], planId: '' });
 
+  const [history, setHistory] = useState([]);
+
+
   // Sync with IndexedDB on Component Mount
-  useEffect(() => {
-    async function loadSavedData() {
+// Sync with IndexedDB on Component Mount
+useEffect(() => {
+  async function loadSavedData() {
+    try {
+      // 1. Fetch data items from IndexedDB
       const savedExs = await localforage.getItem('exercises') || [
         { id: 'ex-1', name: 'Lateral Lunges', metricType: 'WEIGHT_REPS', imageUrls: ['https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600'] },
         { id: 'ex-2', name: 'Plank Hold', metricType: 'DURATION', imageUrls: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600'] },
         { id: 'ex-3', name: 'Bodyweight Pull-ups', metricType: 'BODYWEIGHT_REPS', imageUrls: ['https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=600'] }
       ];
+
       const savedPlans = await localforage.getItem('plans') || [
         { id: 'plan-1', name: 'Calisthenics & Core Focus', exercises: [
           { exerciseId: 'ex-1', targetSets: 3, targetReps: 12, targetDuration: 0 },
           { exerciseId: 'ex-2', targetSets: 3, targetReps: 0, targetDuration: 60 }
         ]}
       ];
-      const savedSchedule = await localforage.getItem('schedule') || { [new Date().toISOString().split('T')[0]]: 'plan-1' };
 
+      const savedSchedule = await localforage.getItem('schedule') || { 
+        [new Date().toISOString().split('T')[0]]: 'plan-1' 
+      };
+
+      // CRITICAL: This must remain inside this async wrapper function to use 'await'!
+      const savedHistory = await localforage.getItem('history') || [
+        {
+          id: "hist-mock-1",
+          date: "2026-07-08",
+          planName: "Calisthenics & Core Focus",
+          exercises: {
+            "ex-1": [{ weight: 35, reps: 12, duration: 0 }, { weight: 40, reps: 12, duration: 0 }, { weight: 40, reps: 10, duration: 0 }],
+            "ex-2": [{ weight: 0, reps: 0, duration: 60 }, { weight: 0, reps: 0, duration: 60 }]
+          }
+        }
+      ];
+
+      // 2. Safely commit data batches directly to component states
       setExercises(savedExs);
       setPlans(savedPlans);
       setSchedule(savedSchedule);
+      setHistory(savedHistory);
+
+    } catch (error) {
+      console.error("Critical Error: Failed loading tracking stores from IndexedDB:", error);
     }
-    loadSavedData();
-    
-    if (navigator.storage && navigator.storage.persist) {
-      navigator.storage.persist();
-    }
-  }, []);
+  }
+  
+  // Fire off the initialization promise sequence
+  loadSavedData();
+  
+  // Request mobile storage persistence layers asynchronously
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(console.error);
+  }
+}, []); // Empty array ensures this entire thread fires exactly once on phone initialization
 
   const saveData = async (key, data) => {
     await localforage.setItem(key, data);
@@ -75,10 +107,10 @@ export default function App() {
     const current = new Date(selectedDate);
     const startObj = new Date(current.getFullYear(), current.getMonth(), 1);
     const endObj = new Date(current.getFullYear(), current.getMonth() + 1, 0);
-    
+
     const days = [];
-    for(let i = 0; i < startObj.getDay(); i++) days.push(null);
-    for(let day = 1; day <= endObj.getDate(); day++) {
+    for (let i = 0; i < startObj.getDay(); i++) days.push(null);
+    for (let day = 1; day <= endObj.getDate(); day++) {
       const dateString = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       days.push(dateString);
     }
@@ -102,25 +134,25 @@ export default function App() {
     alert(`Plan successfully bound to ${schedulerForm.date}`);
   };
 
- const startWorkoutSession = (plan) => {
-  const defaultProgress = {};
-  
-  // FIX: Changed 'plan?.exercises' to 'plan?.selectedExs' to match your schema
-  plan?.selectedExs?.forEach(config => {
-    // Defensive check: Ensure targetSets is a valid number (fallback to 3 if missing)
-    const totalSets = parseInt(config.targetSets) || 3;
+  const startWorkoutSession = (plan) => {
+    const defaultProgress = {};
 
-    defaultProgress[config.exerciseId] = Array.from({ length: totalSets }, () => ({
-      weight: 0, // Set to 0 so inputs start clean, or keep 40 if you want a default baseline
-      reps: parseInt(config.targetReps) || 0,
-      duration: parseInt(config.targetDuration) || 0
-    }));
-  });
+    // FIX: Changed 'plan?.exercises' to 'plan?.selectedExs' to match your schema
+    plan?.selectedExs?.forEach(config => {
+      // Defensive check: Ensure targetSets is a valid number (fallback to 3 if missing)
+      const totalSets = parseInt(config.targetSets) || 3;
 
-  setWorkoutProgress(defaultProgress);
-  setActiveExerciseIndex(0);
-  setIsWorkoutActive(true);
-};
+      defaultProgress[config.exerciseId] = Array.from({ length: totalSets }, () => ({
+        weight: 0, // Set to 0 so inputs start clean, or keep 40 if you want a default baseline
+        reps: parseInt(config.targetReps) || 0,
+        duration: parseInt(config.targetDuration) || 0
+      }));
+    });
+
+    setWorkoutProgress(defaultProgress);
+    setActiveExerciseIndex(0);
+    setIsWorkoutActive(true);
+  };
 
   const activePlanId = schedule[selectedDate];
   const todayPlan = plans.find(p => p.id === activePlanId);
@@ -178,9 +210,11 @@ export default function App() {
 
         {currentTab === 'exercises' && (
           <ExercisesTab
+            exercises={exercises}
             newExercise={newExercise}
             setNewExercise={setNewExercise}
             handleCreateExercise={handleCreateExercise}
+            history={history}
           />
         )}
       </main>
