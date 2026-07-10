@@ -98,7 +98,7 @@ export default function DiaryTab({
               <div>
                 <p className="text-xs text-emerald-400 uppercase tracking-widest font-black">Scheduled Target Routine</p>
                 <h2 className="text-2xl font-black text-white mt-1">{todayPlan.name}</h2>
-                <p className="text-xs text-slate-400 mt-1">{todayPlan.exercises.length} Specialized Movements Configured</p>
+                <p className="text-xs text-slate-400 mt-1">{todayPlan?.exercises?.length} Specialized Movements Configured</p>
               </div>
               <button 
                 onClick={() => startWorkoutSession(todayPlan)}
