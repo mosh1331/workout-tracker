@@ -8,14 +8,14 @@ localforage.config({ name: "FitTrackPWA", storeName: "workout_data" });
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('diary');
-  
+
   // Normalized App States
   const [exercises, setExercises] = useState([]);
   const [plans, setPlans] = useState([]);
   const [schedule, setSchedule] = useState({});
   const [history, setHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  
+
   // Execution Control states
   const [isWorkoutActive, setIsWorkoutActive] = useState(false);
   const [workoutMode, setWorkoutMode] = useState('card');
@@ -38,10 +38,12 @@ export default function App() {
           { id: 'ex-2', name: 'Plank Hold', metricType: 'DURATION', imageUrls: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600'] }
         ];
         const savedPlans = await localforage.getItem('plans') || [
-          { id: 'plan-1', name: 'Calisthenics & Core Focus', selectedExs: [
-            { exerciseId: 'ex-1', targetSets: 3, targetReps: 12, targetDuration: 0 },
-            { exerciseId: 'ex-2', targetSets: 3, targetReps: 0, targetDuration: 60 }
-          ]}
+          {
+            id: 'plan-1', name: 'Calisthenics & Core Focus', selectedExs: [
+              { exerciseId: 'ex-1', targetSets: 3, targetReps: 12, targetDuration: 0 },
+              { exerciseId: 'ex-2', targetSets: 3, targetReps: 0, targetDuration: 60 }
+            ]
+          }
         ];
         const savedSchedule = await localforage.getItem('schedule') || { [new Date().toISOString().split('T')[0]]: 'plan-1' };
         const savedHistory = await localforage.getItem('history') || [];
@@ -76,28 +78,28 @@ export default function App() {
   };
 
   const handleDeletePlan = (planId) => {
-  if (window.confirm("Are you sure you want to delete this workout blueprint?")) {
-    const updated = plans.filter(p => p.id !== planId);
-    setPlans(updated);
-    saveData('plans', updated);
-    
-    // Optional: Clean up the calendar schedule if it was assigned to dates
-    const updatedSchedule = { ...schedule };
-    Object.keys(updatedSchedule).forEach(date => {
-      if (updatedSchedule[date] === planId) delete updatedSchedule[date];
-    });
-    setSchedule(updatedSchedule);
-    saveData('schedule', updatedSchedule);
-  }
-};
+    if (window.confirm("Are you sure you want to delete this workout blueprint?")) {
+      const updated = plans.filter(p => p.id !== planId);
+      setPlans(updated);
+      saveData('plans', updated);
 
-const handleDeleteExercise = (exerciseId) => {
-  if (window.confirm("Deleting this exercise will remove it from your catalog. Proceed?")) {
-    const updated = exercises.filter(e => e.id !== exerciseId);
-    setExercises(updated);
-    saveData('exercises', updated);
-  }
-};
+      // Optional: Clean up the calendar schedule if it was assigned to dates
+      const updatedSchedule = { ...schedule };
+      Object.keys(updatedSchedule).forEach(date => {
+        if (updatedSchedule[date] === planId) delete updatedSchedule[date];
+      });
+      setSchedule(updatedSchedule);
+      saveData('schedule', updatedSchedule);
+    }
+  };
+
+  const handleDeleteExercise = (exerciseId) => {
+    if (window.confirm("Deleting this exercise will remove it from your catalog. Proceed?")) {
+      const updated = exercises.filter(e => e.id !== exerciseId);
+      setExercises(updated);
+      saveData('exercises', updated);
+    }
+  };
   // NEW PIPELINE: Commits completed active records straight into history storage array maps
   const handleFinishWorkout = (date, planName, progress) => {
     const cleanedHistory = history.filter(h => h.date !== date);
@@ -128,6 +130,12 @@ const handleDeleteExercise = (exerciseId) => {
     const updated = [...cleanedHistory, restEntry];
     setHistory(updated);
     saveData('history', updated);
+  };
+
+  const handleUpdateExercise = (updatedEx) => {
+    const updated = exercises.map(e => e.id === updatedEx.id ? updatedEx : e);
+    setExercises(updated);
+    saveData('exercises', updated);
   };
 
   // NEW PIPELINE: Drops completed performance payloads to re-enable standard execution states
@@ -169,8 +177,8 @@ const handleDeleteExercise = (exerciseId) => {
     const startObj = new Date(current.getFullYear(), current.getMonth(), 1);
     const endObj = new Date(current.getFullYear(), current.getMonth() + 1, 0);
     const days = [];
-    for(let i = 0; i < startObj.getDay(); i++) days.push(null);
-    for(let day = 1; day <= endObj.getDate(); day++) {
+    for (let i = 0; i < startObj.getDay(); i++) days.push(null);
+    for (let day = 1; day <= endObj.getDate(); day++) {
       days.push(`${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
     }
     return days;
@@ -182,7 +190,7 @@ const handleDeleteExercise = (exerciseId) => {
   return (
     <div className="bg-slate-50 text-slate-900 min-h-screen  w-full font-sans pb-24 max-w-md mx-auto border-x border-slate-100">
       <header className="h-[60px] bg-white border-b border-slate-200 sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl " style={{color: 'black' }}><i className="fa-solid fa-square-heart mr-2"></i>FitTrack Pro</h1>
+        <h1 className="text-xl " style={{ color: 'black' }}><i className="fa-solid fa-square-heart mr-2"></i>FitTrack Pro</h1>
         <span className="text-[11px] font-mono font-bold bg-slate-50 px-2 py-1 rounded border border-slate-200 text-slate-600 font-bold">KG System</span>
       </header>
 
@@ -219,6 +227,7 @@ const handleDeleteExercise = (exerciseId) => {
             setNewExercise={setNewExercise} handleCreateExercise={handleCreateExercise}
             history={history}
             handleDeleteExercise={handleDeleteExercise}
+            handleUpdateExercise={handleUpdateExercise}
           />
         )}
       </main>
