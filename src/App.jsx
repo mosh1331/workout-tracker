@@ -232,7 +232,7 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-2 flex justify-around items-center max-w-md mx-auto rounded-t-2xl shadow-2xl z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-4 flex justify-around items-center max-w-md mx-auto rounded-t-2xl shadow-2xl z-50">
         <button onClick={() => { setIsWorkoutActive(false); setCurrentTab('diary'); }} className={`flex flex-col items-center gap-1 transition ${currentTab === 'diary' ? 'text-emerald-400' : 'text-slate-600'}`}>
           <i className="fa-solid fa-calendar-day text-lg"></i><span className="text-[10px] font-bold">Diary</span>
         </button>

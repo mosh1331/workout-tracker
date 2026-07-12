@@ -60,23 +60,46 @@ export default function ExercisesTab({
 
                 {/* Multi-Image Form Check Carousel */}
                 <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xl">
-                    <div className="h-48 bg-slate-250 relative">
-                        {/* <img src={currentImg} alt={selectedExercise.name} className="w-full h-full object-cover opacity-90" /> */}
+                    <div className="h-48 bg-slate-950 relative">
                         <img
                             src={currentImg}
                             alt={selectedExercise.name}
                             className="w-full h-full object-cover opacity-90 cursor-pointer"
                             onClick={() => setFullScreenImage(currentImg)}
                         />
+
+                        {/* --- ADD THIS PIECE: DYNAMIC IMAGE DELETION ACTION TRASH CAN BIN BUTTON --- */}
+                        {hasImages && selectedExercise.imageUrls.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (window.confirm("Remove this form check angle image from the exercise profile?")) {
+                                        const updatedUrls = selectedExercise.imageUrls.filter((_, i) => i !== carouselIndex);
+                                        const updatedExercise = {
+                                            ...selectedExercise,
+                                            imageUrls: updatedUrls
+                                        };
+                                        handleUpdateExercise(updatedExercise);
+                                        setSelectedExercise(updatedExercise); // Dynamic state sync update
+                                        setCarouselIndex(0); // Reset index safely to avoid boundary errors
+                                    }
+                                }}
+                                className="absolute top-3 right-3 bg-red-500/80 hover:bg-red-600 backdrop-blur-sm text-white w-7 h-7 rounded-md flex items-center justify-center border border-red-600/30 shadow-xs text-xs transition z-10"
+                                title="Delete Current Angle Image"
+                            >
+                                <i className="fa-solid fa-trash-can text-white">X</i>
+                            </button>
+                        )}
+
                         {hasImages && selectedExercise.imageUrls.length > 1 && (
                             <>
-                                <span className="absolute top-3 left-3 bg-slate-50/80 backdrop-blur-sm px-2.5 py-1 rounded-md text-[10px] font-black text-emerald-400 border border-slate-200">
+                                <span className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-sm px-2.5 py-1 rounded-md text-[10px] font-black text-emerald-400 border border-slate-700">
                                     Form Angle {carouselIndex + 1} of {selectedExercise.imageUrls.length}
                                 </span>
-
                                 <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
-                                    <button onClick={() => handlePrevImage(selectedExercise.imageUrls)} className="pointer-events-auto bg-slate-50/80 text-black w-7 h-7 rounded-full flex items-center justify-center border border-slate-200/50"><i className="fa-solid fa-chevron-left text-xs"></i></button>
-                                    <button onClick={() => handleNextImage(selectedExercise.imageUrls)} className="pointer-events-auto bg-slate-50/80 text-black w-7 h-7 rounded-full flex items-center justify-center border border-slate-200/50"><i className="fa-solid fa-chevron-right text-xs"></i></button>
+                                    <button onClick={() => handlePrevImage(selectedExercise.imageUrls)} className="pointer-events-auto bg-slate-900/80 text-white w-7 h-7 rounded-full flex items-center justify-center border border-slate-700/50"><i className="fa-solid fa-chevron-left text-xs"></i></button>
+                                    <button onClick={() => handleNextImage(selectedExercise.imageUrls)} className="pointer-events-auto bg-slate-900/80 text-white w-7 h-7 rounded-full flex items-center justify-center border border-slate-700/50"><i className="fa-solid fa-chevron-right text-xs"></i></button>
                                 </div>
                             </>
                         )}
@@ -277,7 +300,7 @@ export default function ExercisesTab({
         <div className="space-y-4 animate-fadeIn">
             <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                 <div>
-                    <h2 className=" font-bold text-black" style={{ color: 'black' }}>Exercise Catalog</h2>
+                    <h2 className=" font-bold text-black text-left" style={{ color: 'black' }}>Exercise Catalog</h2>
                     <p className="text-[11px] text-slate-600">Select an item to view targets and historic log trends</p>
                 </div>
                 <button
@@ -305,7 +328,7 @@ export default function ExercisesTab({
                             />
 
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-extrabold text-sm text-black truncate group-hover:text-emerald-400 transition">{ex.name}</h3>
+                                <h3 className="font-extrabold capitalize text-left text-sm text-black truncate group-hover:text-emerald-400 transition">{ex.name}</h3>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-slate-50 text-slate-600 border border-slate-100">
                                         {ex.metricType.split('_')[0]}
@@ -324,11 +347,11 @@ export default function ExercisesTab({
                                     className="text-slate-400 hover:text-red-500 p-2 transition"
                                     title="Remove Exercise"
                                 >
-                                    <i className="fa-solid fa-trash-can text-xs">Delete</i>
+                                    <i className="fa-solid fa-trash-can text-xs bg-red-400 p-1 rounded text-white font-bold">Delete</i>
                                 </button>
-                                <div className="text-slate-600 group-hover:text-emerald-500 transition text-xs pr-1">
+                                {/* <div className="text-slate-600 group-hover:text-emerald-500 transition text-xs pr-1">
                                     <i className="fa-solid fa-chevron-right">{'>'}</i>
-                                </div>
+                                </div> */}
                             </div>
                             <div className="text-slate-500 group-hover:text-emerald-400 transition text-xs pr-1">
                                 <i className="fa-solid fa-chevron-right"></i>
