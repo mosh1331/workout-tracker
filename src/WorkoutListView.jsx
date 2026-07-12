@@ -10,12 +10,12 @@ const WorkoutListView = ({ todayPlan, exercises, activeExerciseIndex, setActiveE
                     <div
                         key={config?.exerciseId}
                         onClick={() => { setActiveExerciseIndex(index); setWorkoutMode('card'); }}
-                        className={`p-3 rounded-xl border flex gap-3 items-center cursor-pointer transition ${isActive ? 'bg-slate-800 border-emerald-500' : 'bg-slate-800/60 border-slate-700 opacity-70'}`}
+                        className={`p-3 rounded-xl border flex gap-3 items-center cursor-pointer transition ${isActive ? 'bg-white border-emerald-500' : 'bg-white/60 border-slate-200 opacity-70'}`}
                     >
-                        <img src={ex?.imageUrls[0]} className="w-10 h-10 rounded-lg object-cover bg-slate-900" alt="" />
+                        <img src={ex?.imageUrls[0]} className="w-10 h-10 rounded-lg object-cover bg-slate-50" alt="" />
                         <div className="flex-1">
                             <h4 className="font-bold text-sm text-white">{index + 1}. {ex?.name}</h4>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-slate-600">
                                 {config.targetSets} Sets Configuration Target
                             </p>
                         </div>
