@@ -17,7 +17,7 @@ export default function PlansTab({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [expandedPopupPlanId, setExpandedPopupPlanId] = useState(null);
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 w-full">
             <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}

@@ -74,7 +74,9 @@ export default function ExercisesTab({
           </div>
 
           <div className="p-4">
-            <h2 className="text-xl font-black text-black">{selectedExercise.name}</h2>
+            <h2 className="text-xl font-black text-black" style={{ color: 'black' }}>
+              {selectedExercise.name}
+            </h2>
             <p className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold mt-1">
               Metric Profile: {selectedExercise.metricType.replace('_', ' ')}
             </p>

@@ -180,13 +180,13 @@ const handleDeleteExercise = (exerciseId) => {
   const todayPlan = plans.find(p => p.id === activePlanId);
 
   return (
-    <div className="bg-slate-50 text-slate-900 min-h-screen font-sans pb-24 max-w-md mx-auto border-x border-slate-100">
+    <div className="bg-slate-50 text-slate-900 min-h-screen  w-full font-sans pb-24 max-w-md mx-auto border-x border-slate-100">
       <header className="h-[60px] bg-white border-b border-slate-200 sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
         <h1 className="text-xl " style={{color: 'black' }}><i className="fa-solid fa-square-heart mr-2"></i>FitTrack Pro</h1>
         <span className="text-[11px] font-mono font-bold bg-slate-50 px-2 py-1 rounded border border-slate-200 text-slate-600 font-bold">KG System</span>
       </header>
 
-      <main className="p-4 space-y-6">
+      <main className="p-4 space-y-6 w-full">
         {currentTab === 'diary' && (
           <DiaryTab
             selectedDate={selectedDate} setSelectedDate={setSelectedDate}
