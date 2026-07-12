@@ -75,6 +75,29 @@ export default function App() {
     setIsWorkoutActive(true);
   };
 
+  const handleDeletePlan = (planId) => {
+  if (window.confirm("Are you sure you want to delete this workout blueprint?")) {
+    const updated = plans.filter(p => p.id !== planId);
+    setPlans(updated);
+    saveData('plans', updated);
+    
+    // Optional: Clean up the calendar schedule if it was assigned to dates
+    const updatedSchedule = { ...schedule };
+    Object.keys(updatedSchedule).forEach(date => {
+      if (updatedSchedule[date] === planId) delete updatedSchedule[date];
+    });
+    setSchedule(updatedSchedule);
+    saveData('schedule', updatedSchedule);
+  }
+};
+
+const handleDeleteExercise = (exerciseId) => {
+  if (window.confirm("Deleting this exercise will remove it from your catalog. Proceed?")) {
+    const updated = exercises.filter(e => e.id !== exerciseId);
+    setExercises(updated);
+    saveData('exercises', updated);
+  }
+};
   // NEW PIPELINE: Commits completed active records straight into history storage array maps
   const handleFinishWorkout = (date, planName, progress) => {
     const cleanedHistory = history.filter(h => h.date !== date);
@@ -186,6 +209,7 @@ export default function App() {
             plans={plans} setPlans={setPlans} exercises={exercises}
             newPlan={newPlan} setNewPlan={setNewPlan}
             handleAssignPlanToDate={handleAssignPlanToDate} saveData={saveData}
+            handleDeletePlan={handleDeletePlan}
           />
         )}
 
@@ -194,6 +218,7 @@ export default function App() {
             exercises={exercises} newExercise={newExercise}
             setNewExercise={setNewExercise} handleCreateExercise={handleCreateExercise}
             history={history}
+            handleDeleteExercise={handleDeleteExercise}
           />
         )}
       </main>

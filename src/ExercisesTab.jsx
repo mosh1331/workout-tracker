@@ -5,7 +5,8 @@ export default function ExercisesTab({
   newExercise,
   setNewExercise,
   handleCreateExercise,
-  history = [] // Fed from App.jsx state
+  history = [], // Fed from App.jsx state,
+  handleDeleteExercise
 }) {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -63,6 +64,7 @@ export default function ExercisesTab({
                 <span className="absolute top-3 left-3 bg-slate-50/80 backdrop-blur-sm px-2.5 py-1 rounded-md text-[10px] font-black text-emerald-400 border border-slate-200">
                   Form Angle {carouselIndex + 1} of {selectedExercise.imageUrls.length}
                 </span>
+                
                 <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
                   <button onClick={() => handlePrevImage(selectedExercise.imageUrls)} className="pointer-events-auto bg-slate-50/80 text-black w-7 h-7 rounded-full flex items-center justify-center border border-slate-200/50"><i className="fa-solid fa-chevron-left text-xs"></i></button>
                   <button onClick={() => handleNextImage(selectedExercise.imageUrls)} className="pointer-events-auto bg-slate-50/80 text-black w-7 h-7 rounded-full flex items-center justify-center border border-slate-200/50"><i className="fa-solid fa-chevron-right text-xs"></i></button>
@@ -256,7 +258,21 @@ export default function ExercisesTab({
                   </span>
                 </div>
               </div>
-
+<div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stops the card from launching the detail view toggle
+                    handleDeleteExercise(ex.id);
+                  }}
+                  className="text-slate-400 hover:text-red-500 p-2 transition"
+                  title="Remove Exercise"
+                >
+                  <i className="fa-solid fa-trash-can text-xs">Delete</i>
+                </button>
+                <div className="text-slate-600 group-hover:text-emerald-500 transition text-xs pr-1">
+                  <i className="fa-solid fa-chevron-right">{'>'}</i>
+                </div>
+              </div>
               <div className="text-slate-500 group-hover:text-emerald-400 transition text-xs pr-1">
                 <i className="fa-solid fa-chevron-right"></i>
               </div>
