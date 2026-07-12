@@ -209,6 +209,7 @@ export default function PlansTab({
                                         {/* Mapped Inner Exercises Sub-List Dropdown */}
                                         {isExpanded && (
                                             <div className="bg-white border-t border-slate-200 p-2.5 space-y-1.5 text-[11px] text-slate-600 animate-slideDown">
+
                                                 {p.selectedExs?.map((config, index) => {
                                                     const ex = exercises.find(e => e.id === config.exerciseId);
                                                     return (
@@ -227,6 +228,15 @@ export default function PlansTab({
                                                 {(!p.selectedExs || p.selectedExs.length === 0) && (
                                                     <p className="text-slate-400 italic text-center text-[10px] py-1">No movement entries configured in this routine setup.</p>
                                                 )}
+                                                <div className="bg-white border-t border-slate-200 p-2.5 space-y-1.5 text-[11px] text-slate-600 animate-slideDown">
+                                                    <button
+                                                        onClick={() => handleDeletePlan(p.id)}
+                                                        className="text-slate-400 hover:text-red-500 p-2 text-xs transition"
+                                                        title="Delete Blueprint"
+                                                    >
+                                                        <i className="fa-solid fa-trash-can text-sm">Delete</i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
