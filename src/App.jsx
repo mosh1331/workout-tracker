@@ -30,6 +30,7 @@ export default function App() {
   const [schedulerForm, setSchedulerForm] = useState({ date: new Date().toISOString().split('T')[0], planId: '' });
 
   // Correctly bound isolated async lifecycle synchronization hook
+ // --- REPLACE YOUR CURRENT INITIALIZATION USEEFFECT HOOK WITH THIS ---
   useEffect(() => {
     async function loadSavedData() {
       try {
@@ -38,20 +39,28 @@ export default function App() {
           { id: 'ex-2', name: 'Plank Hold', metricType: 'DURATION', imageUrls: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600'] }
         ];
         const savedPlans = await localforage.getItem('plans') || [
-          {
-            id: 'plan-1', name: 'Calisthenics & Core Focus', selectedExs: [
-              { exerciseId: 'ex-1', targetSets: 3, targetReps: 12, targetDuration: 0 },
-              { exerciseId: 'ex-2', targetSets: 3, targetReps: 0, targetDuration: 60 }
-            ]
-          }
+          { id: 'plan-1', name: 'Calisthenics & Core Focus', selectedExs: [
+            { exerciseId: 'ex-1', targetSets: 3, targetReps: 12, targetDuration: 0 },
+            { exerciseId: 'ex-2', targetSets: 3, targetReps: 0, targetDuration: 60 }
+          ]}
         ];
         const savedSchedule = await localforage.getItem('schedule') || { [new Date().toISOString().split('T')[0]]: 'plan-1' };
         const savedHistory = await localforage.getItem('history') || [];
+
+        // Fetch ongoing session caches if they exist
+        const sessionActive = await localforage.getItem('active_session_running') || false;
+        const sessionIndex = await localforage.getItem('active_session_index') || 0;
+        const sessionProgress = await localforage.getItem('active_session_progress') || {};
 
         setExercises(savedExs);
         setPlans(savedPlans);
         setSchedule(savedSchedule);
         setHistory(savedHistory);
+        
+        // Restore progress values smoothly
+        setIsWorkoutActive(sessionActive);
+        setActiveExerciseIndex(sessionIndex);
+        setWorkoutProgress(sessionProgress);
       } catch (err) {
         console.error("IndexedDB bootstrap store fault:", err);
       }
@@ -59,9 +68,19 @@ export default function App() {
     loadSavedData();
   }, []);
 
+  // --- ADD THIS NEW SIDE-EFFECT HANDLER DIRECTLY BELOW THE REGULAR LIFE-CYCLE USEEFFECT HOOK ---
+  useEffect(() => {
+    if (isWorkoutActive) {
+      saveData('active_session_running', isWorkoutActive);
+      saveData('active_session_index', activeExerciseIndex);
+      saveData('active_session_progress', workoutProgress);
+    }
+  }, [isWorkoutActive, activeExerciseIndex, workoutProgress]);
+
   const saveData = async (key, data) => {
     await localforage.setItem(key, data);
   };
+
 
   const startWorkoutSession = (plan) => {
     const defaultProgress = {};
@@ -75,6 +94,11 @@ export default function App() {
     setWorkoutProgress(defaultProgress);
     setActiveExerciseIndex(0);
     setIsWorkoutActive(true);
+    
+    // Explicitly commit initial cache boundaries
+    saveData('active_session_running', true);
+    saveData('active_session_index', 0);
+    saveData('active_session_progress', defaultProgress);
   };
 
   const handleDeletePlan = (planId) => {
@@ -101,7 +125,8 @@ export default function App() {
     }
   };
   // NEW PIPELINE: Commits completed active records straight into history storage array maps
-  const handleFinishWorkout = (date, planName, progress) => {
+  
+const handleFinishWorkout = (date, planName, progress) => {
     const cleanedHistory = history.filter(h => h.date !== date);
     const newEntry = {
       id: `hist-${Date.now()}`,
@@ -114,6 +139,12 @@ export default function App() {
     setHistory(updated);
     saveData('history', updated);
     setIsWorkoutActive(false);
+    
+    // Wipe ongoing session caches out completely
+    localforage.removeItem('active_session_running');
+    localforage.removeItem('active_session_index');
+    localforage.removeItem('active_session_progress');
+    
     alert('Workout successfully preserved to offline logs diary!');
   };
 
@@ -139,12 +170,17 @@ export default function App() {
   };
 
   // NEW PIPELINE: Drops completed performance payloads to re-enable standard execution states
-  const handleClearDateHistory = (date) => {
+ const handleClearDateHistory = (date) => {
     const updated = history.filter(h => h.date !== date);
     setHistory(updated);
     saveData('history', updated);
+    
+    // Safety check: if you clear history, make sure ongoing flags don't accidentally linger
+    setIsWorkoutActive(false);
+    localforage.removeItem('active_session_running');
+    localforage.removeItem('active_session_index');
+    localforage.removeItem('active_session_progress');
   };
-
   const handleCreateExercise = () => {
     if (!newExercise.name) return;
     const cleanUrls = newExercise.imageUrls.filter(url => url.trim() !== '');
