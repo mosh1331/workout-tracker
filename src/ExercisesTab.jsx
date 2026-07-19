@@ -15,6 +15,19 @@ export default function ExercisesTab({
 
     const [newImageUrl, setNewImageUrl] = useState('');
     const [fullScreenImage, setFullScreenImage] = useState(null);
+    // Place this inside your component state setup
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyText = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset state after 2 seconds
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert(JSON.stringify(err))
+        }
+    };
 
     // Filter global history for entries containing this specific exercise
     const getExerciseHistory = (exerciseId) => {
@@ -106,9 +119,26 @@ export default function ExercisesTab({
                     </div>
 
                     <div className="p-4">
-                        <h2 className="text-xl font-black text-black" style={{ color: 'black' }}>
-                            {selectedExercise.name}
-                        </h2>
+                        <div className="flex items-center gap-2 group justify-center">
+                            <h2 className="text-xl font-black text-slate-900" style={{color:'black'}}>
+                                {selectedExercise.name}
+                            </h2>
+
+                            <button
+                                type="button"
+                                onClick={() => handleCopyText(selectedExercise.name)}
+                                className="p-1 text-slate-400 hover:text-slate-600 active:text-emerald-500 transition-colors duration-200"
+                                title="Copy to clipboard"
+                            >
+                                {copied ? (
+                                    <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-md font-bold uppercase animate-fade-in">
+                                        Copied!
+                                    </span>
+                                ) : (
+                                    <i className="fa-regular fa-copy text-sm"></i>
+                                )}
+                            </button>
+                        </div>
                         <p className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold mt-1">
                             Metric Profile: {selectedExercise.metricType.replace('_', ' ')}
                         </p>
@@ -347,7 +377,7 @@ export default function ExercisesTab({
                                     className="text-slate-400 hover:text-red-500 p-2 transition"
                                     title="Remove Exercise"
                                 >
-                                    <i className="fa-solid fa-trash-can text-xs bg-red-400 p-1 rounded text-white font-bold">Delete</i>
+                                    <i className="fa-solid fa-trash-can text-xs bg-red-400 p-1 rounded text-white font-bold"></i>
                                 </button>
                                 {/* <div className="text-slate-600 group-hover:text-emerald-500 transition text-xs pr-1">
                                     <i className="fa-solid fa-chevron-right">{'>'}</i>
