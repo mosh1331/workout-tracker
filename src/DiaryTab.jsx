@@ -231,22 +231,42 @@ export default function DiaryTab({
                                         {/* Header Row Bar clickable to toggle expansion detail view */}
                                         <div
                                             onClick={() => setExpandedHistoryId(isExpanded ? null : histItem.id)}
-                                            className="p-3 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition select-none"
+                                            className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 border-b border-slate-100 transition-all select-none duration-200"
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <span className={`text-xs font-bold px-2 py-0.5 rounded uppercase ${histItem.isRestDay ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
-                                                    {histItem.isRestDay ? "Rest" : "Done"}
+                                            {/* Left & Middle Section: Metadata and Title */}
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1">
+                                                {/* Date Label */}
+                                                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block min-w-[110px]">
+                                                    {dayjs(histItem.date).format("dddd, MMM DD")}
                                                 </span>
-                                                <div>
-                                                    <h4 className="font-bold text-sm text-black">{histItem.planName}</h4>
-                                                    <p className="text-[10px] text-slate-500 font-medium">{dayjs(histItem.date).format("dddd MMM DD") }</p>
-                                                </div>
+
+                                                {/* Plan Title */}
+                                                <h4 className="font-bold text-sm text-slate-800 text-left flex-1">
+                                                    {histItem.planName}
+                                                </h4>
                                             </div>
-                                            {!histItem.isRestDay && (
-                                                <div className="text-slate-600 text-xs">
-                                                    <i className={`fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} transition`}></i>
-                                                </div>
-                                            )}
+
+                                            {/* Right Section: Status Badge & Chevron Trigger */}
+                                            <div className="flex items-center justify-between sm:justify-end gap-3 mt-1 sm:mt-0">
+                                                <span
+                                                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide border ${histItem.isRestDay
+                                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                        }`}
+                                                >
+                                                    {histItem.isRestDay ? "Rest Day" : "Completed"}
+                                                </span>
+
+                                                {/* Chevron Icon Container */}
+                                                {!histItem.isRestDay && (
+                                                    <div className="text-slate-400 w-5 h-5 flex items-center justify-center">
+                                                        <i
+                                                            className={`fa-solid fa-chevron-down transform transition-transform duration-200 ${isExpanded ? 'rotate-180 text-slate-700' : ''
+                                                                }`}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Detailed Expanded Metrics Table Panel */}
@@ -311,7 +331,7 @@ export default function DiaryTab({
                         handleFinishWorkout={handleFinishWorkout}
                         selectedDate={selectedDate}
                         history={history}
-                        
+
                     />}
 
                     {/* MODE DESIGNATION B: COMPACT LIST VIEW */}
@@ -328,7 +348,7 @@ export default function DiaryTab({
                                     >
                                         <img src={ex?.imageUrls[0]} className="w-10 h-10 rounded-lg object-cover bg-slate-50" alt="" />
                                         <div className="flex-1">
-                                            <h4 className="font-bold text-sm text-black capitalize" style={{color:'black'}}>{index + 1}. {ex?.name}</h4>
+                                            <h4 className="font-bold text-sm text-black capitalize" style={{ color: 'black' }}>{index + 1}. {ex?.name}</h4>
                                             <p className="text-xs text-slate-600">{config.targetSets} Sets Mapped Blueprint</p>
                                         </div>
                                     </div>

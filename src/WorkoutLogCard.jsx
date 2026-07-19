@@ -41,7 +41,7 @@ const WorkoutLogCard = ({ todayPlan, exercises, activeImageIndexes, setActiveIma
 
                     <div className="bg-slate-50/50 rounded-xl p-3 border border-slate-200/50 space-y-2">
                         <div className="grid grid-cols-4 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                            <span>Set</span><span>Prev</span><span>Target</span><span> Log</span>
+                            <span>Set</span><span>Target</span><span>Prev</span><span> Log</span>
                         </div>
 
                         {workoutProgress[exDetails.id]?.map((setData, sIdx) => {
