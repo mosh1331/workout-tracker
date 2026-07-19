@@ -26,7 +26,8 @@ export default function DiaryTab({
     startWorkoutSession,
     handleFinishWorkout,
     handleMarkRestDay,
-    handleClearDateHistory
+    handleClearDateHistory,
+    handleCancelWorkout
 }) {
     // Local state to track which historical entry card is expanded to view full sets/reps
     const [expandedHistoryId, setExpandedHistoryId] = useState(null);
@@ -250,8 +251,8 @@ export default function DiaryTab({
                                             <div className="flex items-center justify-between sm:justify-end gap-3 mt-1 sm:mt-0">
                                                 <span
                                                     className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide border ${histItem.isRestDay
-                                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                                         }`}
                                                 >
                                                     {histItem.isRestDay ? "Rest Day" : "Completed"}
@@ -310,7 +311,15 @@ export default function DiaryTab({
                             </h3>
                             <p className="text-[10px] text-slate-600">Exercise {activeExerciseIndex + 1} of {todayPlan?.selectedExs?.length || 0}</p>
                         </div>
+
                         <div className="bg-slate-50 p-1 rounded-lg flex gap-1 border border-slate-200 shrink-0">
+                            <button
+                                onClick={handleCancelWorkout}
+                                className="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200/40 transition flex items-center gap-1 shadow-2xs"
+                                title="Abort Session"
+                            >
+                                <i className="fa-solid fa-ban text-[10px]"></i> Cancel
+                            </button>
                             <button onClick={() => setWorkoutMode('card')} className={`px-2.5 py-1 rounded text-xs font-bold transition ${workoutMode === 'card' ? 'bg-emerald-500 text-slate-900' : 'text-slate-600'}`}>Card</button>
                             <button onClick={() => setWorkoutMode('list')} className={`px-2.5 py-1 rounded text-xs font-bold transition ${workoutMode === 'list' ? 'bg-emerald-500 text-slate-900' : 'text-slate-600'}`}>List</button>
                         </div>

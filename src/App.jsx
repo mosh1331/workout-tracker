@@ -84,6 +84,7 @@ export default function App() {
 
   const startWorkoutSession = (plan) => {
     const defaultProgress = {};
+    console.log(plan,'plann')
     plan?.selectedExs?.forEach(config => {
       defaultProgress[config.exerciseId] = Array.from({ length: parseInt(config.targetSets) || 3 }, () => ({
         weight: 0,
@@ -99,6 +100,19 @@ export default function App() {
     saveData('active_session_running', true);
     saveData('active_session_index', 0);
     saveData('active_session_progress', defaultProgress);
+  };
+
+  const handleCancelWorkout = () => {
+    if (window.confirm("Are you sure you want to cancel this active workout? All unlogged progress for this session will be wiped out.")) {
+      setIsWorkoutActive(false);
+      setActiveExerciseIndex(0);
+      setWorkoutProgress({});
+      
+      // Purge unfinished session caches completely from local device storage
+      localforage.removeItem('active_session_running');
+      localforage.removeItem('active_session_index');
+      localforage.removeItem('active_session_progress');
+    }
   };
 
   const handleDeletePlan = (planId) => {
@@ -244,6 +258,7 @@ const handleFinishWorkout = (date, planName, progress) => {
             getMonthDaysMatrix={getMonthDaysMatrix} getRecentDates={getRecentDates}
             startWorkoutSession={startWorkoutSession} handleFinishWorkout={handleFinishWorkout}
             handleMarkRestDay={handleMarkRestDay} handleClearDateHistory={handleClearDateHistory}
+            handleCancelWorkout={handleCancelWorkout}
           />
         )}
 
